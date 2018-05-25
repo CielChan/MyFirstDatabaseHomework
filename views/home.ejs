@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= locals.title %></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+    <div class="row">
+        <div class="col-4">
+            <div class="list-group" id="list-tab" role="tablist">
+                <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Home</a>
+                <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Profile</a>
+                <a class="list-group-item list-group-item-action" id="list-messages-list" data-toggle="list" href="#list-messages" role="tab" aria-controls="messages">Messages</a>
+                <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="list" href="#list-settings" role="tab" aria-controls="settings">Settings</a>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">...</div>
+                <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">...</div>
+                <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">...</div>
+                <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list">...</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--<script>-->
+
+  <!--$('.alert').alert()-->
+  <!--$('#form').submit(function (e) {-->
+    <!--e.preventDefault()-->
+    <!--// if(confirm("确认吗"))-->
+    <!--//   alert($('#num').val())-->
+    <!--// else {-->
+    <!--//   alert("meiyouqueren")-->
+    <!--//}-->
+    <!--var ale = $('div.alert')-->
+    <!--ale.slideUp()-->
+    <!--$.ajax({-->
+      <!--method: 'get',-->
+      <!--url: '/',-->
+      <!--data: $('#form').serialize(),-->
+      <!--beforeSend: function(){-->
+
+      <!--},-->
+      <!--error: function(){-->
+
+      <!--},-->
+      <!--success: function (data) {//data接收json-->
+        <!--if(data.success){-->
+          <!--ale.addClass('alert-success')-->
+          <!--ale.removeClass('alert-danger')-->
+          <!--return ale.children('#child').html("成功啦")//alert-->
+        <!--}-->
+        <!--ale = $('div.alert #child')-->
+        <!--ale.removeClass('alert-success')-->
+        <!--ale.addClass('alert-danger')-->
+        <!--ale.html(data.error)//更改内容-->
+      <!--},-->
+      <!--complete: function () {-->
+        <!--ale.slideDown()-->
+      <!--}-->
+    <!--}).done().fail().always()-->
+  <!--})-->
+<!--</script>-->
+</body>
+</html>

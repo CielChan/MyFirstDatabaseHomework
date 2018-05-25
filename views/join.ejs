@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= locals.title %></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+          integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+    <div id='alr' class="alert alert-primary alert-dismissible " role="alert" aria-label="close">
+    </div>
+    <form id="register" method="post" action="/SuccessJoin">
+        <div class="form-group">
+            <label>姓名</label>
+            <input type="text" class="form-control" id="enter_name" aria-describedby="emailHelp" placeholder="请输入你的真实姓名"
+                   name="name">
+            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+        </div>
+        <div class="form-group">
+            <label>出生日期</label>
+            <input type="text" class="form-control" id="birth" placeholder="例如：2000.01.01" name="birth">
+        </div>
+        <div class="form-group">
+            <label>电话</label>
+            <input type="text" class="form-control" id="tel" name="tel">
+        </div>
+        <div class="form-group">
+            <label>身高</label>
+            <input type="text" class="form-control" id="height" placeholder="例如：180cm" name="height">
+        </div>
+        <div class="form-group">
+            <label>来自于哪座城市</label>
+            <input type="text" class="form-control" id="city" placeholder="直辖市/省" name="city">
+        </div>
+        <div class="form-group">
+            <label>来自于哪个娱乐公司</label>
+            <input type="text" class="form-control" id="company" placeholder="此项可为空" name="company">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+<script>
+  $('#register').submit(function (e) {
+    e.preventDefault()
+    var ale = $('#alr')
+    ale.slideUp()
+    $.ajax({
+      method: 'post',
+      url: '/SuccessJoin',
+      data: $('#register').serialize(),
+      success: function (data) {
+        if (data.success) {
+
+          ale.addClass('alert-success')
+          ale.removeClass('alert-danger')
+          return ale.html(data.message)
+        }
+        ale.removeClass('alert-success')
+        ale.addClass('alert-danger')
+        ale.html(data.message)
+      },
+      complete: function () {
+        ale.slideDown()
+      }
+    })
+  })
+</script>
+</body>
+</html>
