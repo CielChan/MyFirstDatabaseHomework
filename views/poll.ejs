@@ -29,7 +29,7 @@
             </tbody>
         </table>
         <div class="input-group">
-            <form id="form" method="post" action="/">
+            <form class="poll" method="post" action="/poll">
                 <span class="input-group-text">请输入选手编号</span>
                 <input type="text" name="number">
                 <button type="submit">pick!</button>
@@ -59,14 +59,15 @@
       }
     })
   })
-  $('#poll').submit(function (e) {
+  var form =$('form.poll')
+  form.submit(function (e) {
     e.preventDefault()
     var ale = $('#alr')
     ale.slideUp()
     $.ajax({
       method: 'post',
       url: '/poll',
-      data: $('#poll').serialize(),
+      data: form.serialize(),
       success: function (data) {
         if (data.success) {
           ale.addClass('alert-success')
