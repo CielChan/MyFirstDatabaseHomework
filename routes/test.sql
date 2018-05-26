@@ -1,9 +1,21 @@
-DELIMITER $$
-CREATE TRIGGER com_com
-    BEFORE INSERT ON competitor
-    FOR EACH ROW
-BEGIN
-    IF NEW.company NOT IN (SELECT name FROM company)
-     THEN INSERT INTO company(name) VALUES (NEW.company);
-  END IF;
-END;$$
+--
+--DELIMITER $$
+--CREATE TRIGGER com_com
+--    BEFORE INSERT ON competitor
+--    FOR EACH ROW
+--BEGIN
+--    IF NEW.company NOT IN (SELECT name FROM company)
+--     THEN INSERT INTO company(name) VALUES (NEW.company);
+--  END IF;
+--END;$$
+--
+--
+--DELIMITER $$
+--CREATE TRIGGER com_perform
+--    AFTER INSERT ON competitor
+--    FOR EACH ROW
+--BEGIN
+--    IF NEW.number NOT IN (SELECT number FROM performance)
+--     THEN INSERT INTO performance(number) VALUES (NEW.number);
+--  END IF;
+--END;$$

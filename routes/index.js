@@ -31,7 +31,7 @@ router.post('/SuccessJoin',async function  (req,res,next) {
       'value (?,?,?,?,?,?,?)',[name,birth,age,tel,height,city,company])
     res.json({success:true,message:"您已成功报名"})
   }catch(e){
-    res.json({success:false,message:"对不起，报名失败，请刷新界面重试"})
+    res.json({success:false,message:"对不起，报名失败，请刷新界面重试 "+e.stack})
   }
 })
 
@@ -41,12 +41,12 @@ router.get('/home/find',(req,res)=>{
 
 router.post('/findCompetitor',async function  (req,res,next) {
   try{
-    const [number,_]=await pool.query('select number from competitor')
-    const [name,__]=await pool.query('select name from competitor')
-    const [height,___]=await pool.query('select height from competitor')
-    const [birth,____]=await pool.query('select birth from competitor')
-    const [city,_____]=await pool.query('select city from competitor')
-    const [company,______]=await pool.query('select company from competitor')
+    const [number,_]=await pool.query('select number from competitor order by number')
+    const [name,__]=await pool.query('select name from competitor order by number')
+    const [height,___]=await pool.query('select height from competitor order by number')
+    const [birth,____]=await pool.query('select birth from competitor order by number')
+    const [city,_____]=await pool.query('select city from competitor order by number')
+    const [company,______]=await pool.query('select company from competitor order by number')
     res.json({number:number,name:name,height:height,birth:birth,city:city,company:company,success:true})
   }catch(e){
     res.json({success:false,error:e.stack})
@@ -68,13 +68,15 @@ router.get('/home/poll',(req,res)=>{
 })
 
 router.post('/number',async function  (req,res,next) {
-  const[number,_]=await pool.query('select number from competitor')
-  res.json({number:number})
+  const[number,_]=await pool.query('select number from competitor order by number')
+  const[name,__]=await pool.query('select name from competitor order by number')
+  res.json({number:number,name:name,success:true})
 })
 router.post('/poll',async function  (req,res,next) {
+  console.log(req.body.number)
   try{
-    await pool.query('update performance set poll=poll+1 where number=?',req.body.number)
-    res.json({success:true},{message:"恭喜你，已成功投票"})
+    pool.query('update performance set poll=poll+1 where number=?',[req.body.number])
+    res.json({success:true,message:"恭喜你，已成功投票"})
   }catch (e) {
     res.json({success:false,message:"请核对编号再进行投票"})
   }

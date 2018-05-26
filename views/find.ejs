@@ -50,8 +50,6 @@
     </div>
 </div>
 <script>
-  $('#company').clear()
-  $('#competitor').clear()
   $('#list-competitor-list').click(function () {
     $.ajax({
       method: 'post',
@@ -64,6 +62,9 @@
           <td>${data.company[i].company}</td></tr>`)
           }
         }
+      },
+      beforeSend:function () {
+        $('#competitor').html('')
       }
     })
   })
@@ -77,6 +78,9 @@
             $('#company').append(`<tr><td>${data.name[i].name}</td></tr>`)
           }
         }
+      },
+      beforeSend:function () {
+        $('#company').html('')
       }
     })
   })
