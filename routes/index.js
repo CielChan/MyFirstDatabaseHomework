@@ -10,78 +10,125 @@ const pool = mysql.createPool({
 
 /* GET home page. */
 
-router.get('/home',(req,res)=>{
-  res.render('home',{title:"Oxlxs"})
+router.get('/home', (req, res) => {
+  res.render('home', {title: 'Oxlxs'})
 })
 
-router.get('/home/join',(req,res)=>{
-  res.render('join',{title:'Oxlxs'})
+router.get('/home/join', (req, res) => {
+  res.render('join', {title: 'Jion Oxlxs'})
+})
+router.post('/SuccessJoin', function (req, res, next) {
+  const name = req.body.name
+  const birth = req.body.birth
+  const age = req.body.age
+  const tel = req.body.tel
+  const height = req.body.height
+  const city = req.body.city
+  const company_name = req.body.company_name
+  let connect
+  pool.getConnection().then(function (con) {
+    connect = con
+    return con.beginTransaction()
+  }).then(function (con) {
+    return connect.query('select get_id(?) as id', [company_name])
+  }).then(function ([company_id]) {
+    return connect.query('insert into competitor(name,birth,tel,height,city,company_id) ' +
+      'value (?,?,?,?,?,?)', [name, birth, tel, height, city, company_id[0].id])
+  }).then(function () {
+    connect.commit()
+    res.json({success: true, message: '恭喜您，已成功报名'})
+  }).catch(function (e) {
+    console.log(e.stack)
+    res.json({success: false, message: '对不起，报名失败，请重试', error: e.stack})
+    connect.rollback()
+  }).then(function () {
+    connect.release()
+  })
 })
 
-router.post('/SuccessJoin',async function  (req,res,next) {
+router.get('/home/find', (req, res) => {
+  res.render('find', {title: 'Oxlxs'})
+})
+router.post('/findCompetitor', async function (req, res, next) {
+  try {
+    const [result] = await pool.query('select * from competitor_inform')
+    res.json({result, success: true})
+  } catch (e) {
+    console.error(e)
+    res.json({success: false, error: e.stack})
+  }
+})
+
+router.post('/findCompany', async function (req, res, next) {
+  try {
+    const [name, _] = await pool.query('select company_name from company')
+    console.log(name)
+    res.json({name: name, success: true})
+  } catch (e) {
+    res.json({success: false, error: e.stack || e})
+  }
+})
+router.post('/findmore',async function  (req,res,next) {
   const name=req.body.name
-  const birth=req.body.birth
-  const age=req.body.age
-  const tel=req.body.tel
-  const height=req.body.height
-  const city=req.body.city
-  const company=req.body.company
   try{
-    const [rows,_]=await pool.query('insert into competitor(name,birth,age,tel,height,city,company) ' +
-      'value (?,?,?,?,?,?,?)',[name,birth,age,tel,height,city,company])
-    res.json({success:true,message:"您已成功报名"})
-  }catch(e){
-    res.json({success:false,message:"对不起，报名失败，请刷新界面重试 "+e.stack})
+    const[result]=await pool.query('select * from competitor_inform where name=?',[name])
+    if(result.length===0)
+      res.json({success:false,message:"请核对后再查询"})
+    res.json({success:true,result})
+  } catch (e) {
+    console.log(e.stack)
+  }
+
+})
+
+router.get('/home/poll', (req, res) => {
+  res.render('poll', {title: '投票直通道'})
+})
+
+router.post('/number', async function (req, res, next) {
+  const [result, _] = await pool.query('select number,name from competitor')
+  res.json({result, success: true})
+})
+router.post('/poll', async function (req, res, next) {
+  try {
+    pool.query('update competitor set poll=poll+60 where number=?', [req.body.number])
+    res.json({success: true, message: '恭喜你，已成功投票 '})
+  } catch (e) {
+    res.json({success: false, message: '请核对编号再进行投票'})
   }
 })
 
-router.get('/home/find',(req,res)=>{
-  res.render('find',{title:"Oxlxs"})
+router.get('/home/out',(req,res)=> {
+  res.render('out')
 })
-
-router.post('/findCompetitor',async function  (req,res,next) {
+router.post('/getpoll',async function  (req,res,next) {
   try{
-    const [number,_]=await pool.query('select number from competitor order by number')
-    const [name,__]=await pool.query('select name from competitor order by number')
-    const [height,___]=await pool.query('select height from competitor order by number')
-    const [birth,____]=await pool.query('select birth from competitor order by number')
-    const [city,_____]=await pool.query('select city from competitor order by number')
-    const [company,______]=await pool.query('select company from competitor order by number')
-    res.json({number:number,name:name,height:height,birth:birth,city:city,company:company,success:true})
-  }catch(e){
-    res.json({success:false,error:e.stack})
-  }
-})
-
-router.post('/findCompany',async function  (req,res,next) {
-  try{
-    const [name,_]=await pool.query('select name from company where name!=""')
-    res.json({name:name,success:true})
-  }catch(e){
-    res.json({success:false})
-  }
-})
-
-
-router.get('/home/poll',(req,res)=>{
-  res.render('poll',{title:"投票直通道"})
-})
-
-router.post('/number',async function  (req,res,next) {
-  const[number,_]=await pool.query('select number from competitor order by number')
-  const[name,__]=await pool.query('select name from competitor order by number')
-  res.json({number:number,name:name,success:true})
-})
-router.post('/poll',async function  (req,res,next) {
-  console.log(req.body.number)
-  try{
-    pool.query('update performance set poll=poll+1 where number=?',[req.body.number])
-    res.json({success:true,message:"恭喜你，已成功投票"})
+    const [result]=await pool.query('select number,name,poll,company_name from competitor_inform')
+    res.json({message:result})
   }catch (e) {
-    res.json({success:false,message:"请核对编号再进行投票"})
+    console.log(e)
   }
 })
-
+router.post('/out',function (req, res, next) {
+  const company_name=req.body.company_name
+  let connect
+  pool.getConnection().then(function (con) {
+    connect=con
+    return con.beginTransaction()
+  }).then(function (con) {
+    return connect.query('delete from competitor where poll<100 and company_id=(select get_id(?))',[company_name])
+  }).then(function () {
+    return connect.query('delete from company where company_name=?',[company_name])
+  }).then(function () {
+    connect.commit()
+    res.json({success:true,message:"删除成功"})
+  }).catch(function (e) {
+    res.json({success:false,message:"该公司不可被删除"})
+    connect.rollback()
+  }).then(function () {
+    connect.release()
+  })
+})
 
 // router.all('/', async function (req, res, next) {
 //   console.log(req.body)
@@ -143,5 +190,4 @@ router.post('/poll',async function  (req,res,next) {
 //}
 // res.end()
 //})
-
 module.exports = router

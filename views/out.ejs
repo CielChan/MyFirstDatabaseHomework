@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><%= title %></title>
+    <title><%= locals.title %></title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
           integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
@@ -9,64 +9,49 @@
 </head>
 <body>
 <div class="container">
-    <h1><%= title %></h1>
     <p>Welcome to oxlxs</p>
     <div id='alr' class="alert alert-primary alert-dismissible " role="alert" aria-label="close">
     </div>
-    <div class="list-group col-4" id="list-tab" role="tablist">
-        <a class="list-group-item list-group-item-action" id="list-competitor-list" data-toggle="list"
-           href="#poll" role="tab">查看参赛选手</a>
-    </div>
-    <div class="fade" aria-labelledby="list-competitor-list" id="poll">
+    <div class="list">
         <table class="table" id="name_number">
             <thead>
             <tr>
                 <th scope="col">正在参赛的选手编号</th>
                 <th scope="col">姓名</th>
+                <th scope="col">所得票数</th>
+                <th scope="col">公司</th>
             </tr>
             </thead>
             <tbody id="number">
             </tbody>
         </table>
         <div class="input-group">
-            <form class="poll" method="post" action="/poll">
-                <span class="input-group-text">请输入选手编号</span>
-                <input type="text" name="number">
-                <button type="submit">pick!</button>
+            <form class="poll" method="post" action="/out">
+                <span class="input-group-text">请输入公司名称</span>
+                <input type="text" name="company_name">
+                <button type="submit">淘汰</button>
             </form>
-            <!--<form action="/poll" id="poll" method="post">-->
-                <!--<input type="number" class="form-control" name="number">-->
-                <!--<button type="submit">pick!</button>-->
-            <!--</form>-->
         </div>
     </div>
 </div>
 <script>
-
-  $("#list-competitor-list").click(function () {
-    $.ajax({
-      method: 'post',
-      url: '/number',
-      success: function (data) {
-        if (data.success) {
-          for (var i of data.result) {
-            $('#number').append(`<tr><td>${i.number}</td><td>${i.name}</td></tr>`)
-          }
-        }
-      },
-      beforeSend: function () {
-        $('#number').html('')
-      }
-    })
+  $.ajax({
+    url: '/getpoll',
+    method: 'post',
+    success: function (data) {
+      for (var i of data.message)
+        $('table.table').append(`<tr><td>${i.number}</td><td>${i.name}</td>
+          <td>${i.poll}</td><td>${i.company_name}</td></tr>`)
+    }
   })
-  var form =$('form.poll')
+  form=$('form.poll')
   form.submit(function (e) {
     e.preventDefault()
     var ale = $('#alr')
     ale.slideUp()
     $.ajax({
       method: 'post',
-      url: '/poll',
+      url: '/out',
       data: form.serialize(),
       success: function (data) {
         if (data.success) {

@@ -17,6 +17,8 @@
                href="#list-competitor" role="tab">已报名参赛的选手</a>
             <a class="list-group-item list-group-item-action" id="list-company-list" data-toggle="list"
                href="#list-company" role="tab">参赛选手的娱乐公司</a>
+            <a class="list-group-item list-group-item-action" id="list-find-list" data-toggle="list"
+               href="#list-find" role="tab">查询选手详细信息</a>
         </div>
         <div class="col-8">
             <div class="tab-content">
@@ -29,6 +31,7 @@
                         <th scope="col">身高</th>
                         <th scope="col">出生日期</th>
                         <th scope="col">城市</th>
+                        <th scope="col">公司</th>
                     </tr>
                     </thead>
                     <tbody id="competitor">
@@ -45,6 +48,21 @@
                     <tbody id="company">
                     </tbody>
                 </table>
+                <form class="table table-striped tab-pane fade" id="list-find" role="tabpanel"
+                      aria-labelledby="list-find-list" method="post" action="/findmore">
+                    <div class="form-group">
+                        <label>请输入选手姓名</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                    </div>
+                    <button class="btn btn-primary" type="submit">查询</button>
+
+                </form>
+                <table class="table table-striped">
+                    <thead class="inform">
+                    </thead>
+                    <tbody id="more">
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -56,14 +74,13 @@
       url: '/findCompetitor',
       success: function (data) {
         if (data.success) {
-          for (var i in data.number) {
-            $('#competitor').append(`<tr><td>${data.number[i].number}</td><td>${data.name[i].name}</td>
-          <td>${data.height[i].height}</td><td>${data.birth[i].birth}</td><td>${data.city[i].city}</td>
-          <td>${data.company[i].company}</td></tr>`)
+          for (var i of data.result) {
+            $('#competitor').append(`<tr><td>${i.number}</td><td>${i.name}</td>
+          <td>${i.height}</td><td>${i.birth}</td><td>${i.city}</td><td>${i.company_name}</td></tr>`)
           }
         }
       },
-      beforeSend:function () {
+      beforeSend: function () {
         $('#competitor').html('')
       }
     })
@@ -74,13 +91,39 @@
       url: '/findCompany',
       success: function (data) {
         if (data.success) {
-          for (var i in data.name) {
-            $('#company').append(`<tr><td>${data.name[i].name}</td></tr>`)
+          for (var i of data.name) {
+            $('#company').append(`<tr><td>${i.company_name}</td></tr>`)
           }
         }
       },
-      beforeSend:function () {
+      beforeSend: function () {
         $('#company').html('')
+      }
+    })
+  })
+  $('#list-find').submit(function (e) {
+    e.preventDefault()
+    $.ajax({
+      url: '/findmore',
+      method: 'post',
+      data: $('#list-find').serialize(),
+      beforeSend:function(){
+        $('#more').html('')
+      },
+      success: function (data) {
+        if (data.success) {
+          // $('thead.inform').append(`<tr><th scope="col">参赛选手编号</th>
+          //   <th scope="col">姓名</th><th scope="col">身高</th><th scope="col">出生日期</th>
+          //   <th scope="col">城市</th>
+          //   <th scope="col">公司</th>
+          //   </tr>`)
+          for (var i of data.result) {
+            $('#more').append(`<tr><td>${i.number}</td><td>${i.name}</td>
+          <td>${i.height}</td><td>${i.birth}</td><td>${i.city}</td><td>${i.company_name}</td></tr>`)
+          }
+        }
+        else
+          $('#more').html(data.message)
       }
     })
   })
