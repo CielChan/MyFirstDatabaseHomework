@@ -32,13 +32,13 @@ router.post('/SuccessJoin', function (req, res, next) {
   }).then(function (con) {
     return connect.query('select get_id(?) as id', [company_name])
   }).then(function ([company_id]) {
+    console.log(company_id)
     return connect.query('insert into competitor(name,birth,tel,height,city,company_id) ' +
       'value (?,?,?,?,?,?)', [name, birth, tel, height, city, company_id[0].id])
   }).then(function () {
     connect.commit()
     res.json({success: true, message: '恭喜您，已成功报名'})
   }).catch(function (e) {
-    console.log(e.stack)
     res.json({success: false, message: '对不起，报名失败，请重试', error: e.stack})
     connect.rollback()
   }).then(function () {
@@ -46,6 +46,30 @@ router.post('/SuccessJoin', function (req, res, next) {
   })
 })
 
+router.get('/home/company', (req, res) => {
+  res.render('company',{title:"oxlxs"})
+})
+router.post('/JoinCompany', function (req, res, next) {
+  const [number] = req.body.number
+  const [position] = req.body.position
+  const [ranking] = req.body.ranking
+  let connect
+  pool.getConnection().then(function (con) {
+    connect = con
+    return con.beginTransaction()
+  }).then(function () {
+    return connect.query('insert into performance(number,position,ranking) values (?,?,?)', [number, position, ranking])
+  }).then(function () {
+    connect.commit()
+    res.json({success: true, message: '选手表现修改成功'})
+  }).catch(function (e) {
+    console.log(e.stack)
+    res.json({success: false, message: '请核实该选手是否存在'})
+    connect.rollback()
+  }).then(function () {
+    connect.release()
+  })
+})
 router.get('/home/find', (req, res) => {
   res.render('find', {title: 'Oxlxs'})
 })
@@ -68,13 +92,15 @@ router.post('/findCompany', async function (req, res, next) {
     res.json({success: false, error: e.stack || e})
   }
 })
-router.post('/findmore',async function  (req,res,next) {
-  const name=req.body.name
-  try{
-    const[result]=await pool.query('select * from competitor_inform where name=?',[name])
-    if(result.length===0)
-      res.json({success:false,message:"请核对后再查询"})
-    res.json({success:true,result})
+router.post('/findmore', async function (req, res, next) {
+  const name = req.body.name
+  try {
+    const [result] = await pool.query('select * from competitor_lis where name=?', [name])
+    console.log(result)
+    if (result.length === 0)
+      res.json({success: false, message: '请核对后再查询'})
+    else
+      res.json({success: true, result})
   } catch (e) {
     console.log(e.stack)
   }
@@ -98,32 +124,33 @@ router.post('/poll', async function (req, res, next) {
   }
 })
 
-router.get('/home/out',(req,res)=> {
+router.get('/home/out', (req, res) => {
   res.render('out')
 })
-router.post('/getpoll',async function  (req,res,next) {
-  try{
-    const [result]=await pool.query('select number,name,poll,company_name from competitor_inform')
-    res.json({message:result})
-  }catch (e) {
+router.post('/getpoll', async function (req, res, next) {
+  try {
+    const [result] = await pool.query('select number,name,poll,company_name from competitor_inform')
+    res.json({message: result})
+  } catch (e) {
     console.log(e)
   }
 })
-router.post('/out',function (req, res, next) {
-  const company_name=req.body.company_name
+router.post('/out', function (req, res, next) {
+  const company_name = req.body.company_name
   let connect
   pool.getConnection().then(function (con) {
-    connect=con
+    connect = con
     return con.beginTransaction()
   }).then(function (con) {
-    return connect.query('delete from competitor where poll<100 and company_id=(select get_id(?))',[company_name])
+    return connect.query('delete from competitor where poll<100 and company_id=(select get_id(?))', [company_name])
   }).then(function () {
-    return connect.query('delete from company where company_name=?',[company_name])
+    return connect.query('delete from company where company_name=?', [company_name])
   }).then(function () {
     connect.commit()
-    res.json({success:true,message:"删除成功"})
+    res.json({success: true, message: '删除成功'})
   }).catch(function (e) {
-    res.json({success:false,message:"该公司不可被删除"})
+    console.log(e.stack)
+    res.json({success: false, message: '该公司不可被删除'})
     connect.rollback()
   }).then(function () {
     connect.release()
