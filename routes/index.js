@@ -50,9 +50,9 @@ router.get('/home/company', (req, res) => {
   res.render('company',{title:"oxlxs"})
 })
 router.post('/JoinCompany', function (req, res, next) {
-  const [number] = req.body.number
-  const [position] = req.body.position
-  const [ranking] = req.body.ranking
+  const number = req.body.number
+  const position = req.body.position
+  const ranking = req.body.ranking
   let connect
   pool.getConnection().then(function (con) {
     connect = con

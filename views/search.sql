@@ -1,11 +1,15 @@
+select * from competitor;
+
+drop trigger perform;
+
 DELIMITER $$
-create function get_id(name varchar(10))
-returns int
-begin
-declare id int;
-if name not in(select company_name from company)
-then insert into company (company_name) values(name);
-end if;
-select company_id into id from company where company_name=name;
-return id;
-end;$$
+CREATE TRIGGER perform
+    before INSERT ON performance
+    FOR EACH ROW
+BEGIN
+    IF NEW.number not IN (SELECT number FROM competitor)
+     THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = NEW.number;
+  END IF;
+END;$$
+
+drop trigger performan_competitor
